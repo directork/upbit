@@ -1,0 +1,9 @@
+{
+  "project_name": "CU픽 챗봇",
+  "product": "CU 챗봇",
+  "target": "CU 고객",
+  "goal": "챗봇 사용 유도",
+  "core_message": "빠르게 찾는 CU 도우미",
+  "must_include": ["CU", "챗봇"],
+  "avoid": ["과장 표현"]
+}
