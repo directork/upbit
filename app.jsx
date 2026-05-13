@@ -1,272 +1,136 @@
-import React, { useState } from "react";
-
-const CU_PICK_URL =
-  "https://chatgpt.com/g/g-68b54b5484808191a859e824c19a0246-oneulyi-cupig-cu-sinsangpum-pyeonyijeom-eumsig-cuceon-gongsig-caesbos";
-
-const questions = [
+const schedule = [
   {
-    question: "지금 가장 가까운 내 상태는?",
-    answers: [
-      { text: "머리는 복잡한데 시간은 없다", type: "speed" },
-      { text: "괜히 기분이 가라앉고 무기력하다", type: "healing" },
-      { text: "몸이 허하고 제대로 먹고 싶다", type: "meal" },
-      { text: "심심하고 자극이 필요하다", type: "trendy" },
-    ],
-  },
-  {
-    question: "이럴 때 나는 보통 어떻게 선택하는 편인가?",
-    answers: [
-      { text: "빨리 해결하고 다음으로 넘어간다", type: "speed" },
-      { text: "일단 기분부터 끌어올린다", type: "dessert" },
-      { text: "제대로 먹고 안정감을 찾는다", type: "meal" },
-      { text: "새로운 걸로 기분을 바꿔본다", type: "trendy" },
-    ],
+    time: "17:50",
+    publisher: "서울경제",
+    edition: "금일 초판 / e-paper",
+    credentialPolicy: "사내 보안 저장소 또는 런타임 환경변수에서만 조회",
   },
 ];
 
-const resultMap = {
-  speed: {
-    title: "오늘의 운세픽: 빠른 해결형",
-    products: ["참치마요 삼각김밥", "델라페 아메리카노"],
-    fortune:
-      "오늘은 선택 에너지가 낮아진 상태일 가능성이 큽니다. 이럴 때는 오래 고민할수록 피로감만 커지고 만족도는 오히려 떨어지기 쉬워요. 지금은 빠르게 집고 바로 해결하는 선택이 가장 잘 맞는 날입니다. 단순하고 익숙한 조합이 생각보다 큰 안정감을 줄 수 있어요.",
-    action:
-      "오늘은 생각보다 먼저 고르는 게 좋습니다. 특히 한 손에 들고 바로 먹을 수 있는 조합이 만족도를 높여줄 가능성이 큽니다.",
-  },
-  healing: {
-    title: "오늘의 운세픽: 회복 우선형",
-    products: ["컵라면 + 차 음료", "디저트 세트"],
-    fortune:
-      "지금은 몸보다 마음이 먼저 지친 상태일 가능성이 큽니다. 그래서 단순히 배를 채우는 것보다 기분을 회복시키는 선택이 더 중요해요. 오늘은 작은 위로가 하루 전체 흐름을 바꿀 수 있는 날입니다. 익숙하고 편안한 메뉴가 생각보다 큰 만족을 줄 수 있어요.",
-    action:
-      "오늘은 효율보다 회복이 우선입니다. 따뜻하거나 부드러운 조합으로 스스로를 조금 풀어주는 선택이 잘 맞습니다.",
-  },
-  meal: {
-    title: "오늘의 운세픽: 든든 충전형",
-    products: ["PBICK 도시락", "소불고기 김밥"],
-    fortune:
-      "지금은 감정 문제라기보다 에너지 부족이 먼저일 가능성이 큽니다. 이런 날에는 달달한 보상보다 제대로 된 한 끼가 훨씬 높은 만족으로 이어져요. 오늘은 기본기를 챙기는 선택이 정답에 가까운 날입니다. 든든하게 채워야 마음도 같이 안정될 가능성이 큽니다.",
-    action:
-      "오늘은 가볍게 때우지 말고 식사감 있는 메뉴를 고르는 게 좋습니다. 안정감 있는 한 끼가 전체 컨디션을 끌어올릴 수 있어요.",
-  },
-  trendy: {
-    title: "오늘의 운세픽: 기분 전환형",
-    products: ["신상 스낵", "소떡소떡"],
-    fortune:
-      "지금은 무료함이나 답답함이 쌓여 있어서 새로운 자극이 필요한 상태일 수 있습니다. 이런 날에는 너무 안전한 선택보다 약간은 재밌는 선택이 만족도를 더 높여줘요. 오늘은 예상 가능한 메뉴보다 '오 이거 뭐지?' 싶은 선택이 기분 전환의 포인트가 될 가능성이 큽니다.",
-    action:
-      "오늘은 평소 안 고르던 메뉴를 한 번 집어보는 게 좋습니다. 작은 반전이 생각보다 기분을 크게 바꿔줄 수 있어요.",
-  },
-  dessert: {
-    title: "오늘의 운세픽: 달달 보상형",
-    products: ["연세우유 생크림빵", "두바이 초코"],
-    fortune:
-      "오늘은 성과보다 감정 보상이 더 중요한 날일 수 있습니다. 머리로는 참아야 한다고 생각해도, 마음은 작은 만족을 통해 균형을 회복하려고 해요. 이런 날의 달달한 선택은 단순한 군것질이 아니라 기분을 다시 세우는 장치가 되기 쉽습니다.",
-    action:
-      "오늘은 너무 계산적으로만 고르지 말고, 기분이 좋아질 메뉴를 하나 포함해보세요. 작은 보상이 하루의 톤을 바꿀 수 있습니다.",
-  },
+const keywords = [
+  "편의점",
+  "BGF / BGF리테일",
+  "GS리테일 / GS25",
+  "세븐일레븐",
+  "이마트24",
+  "백화점",
+  "유통",
+];
+
+const workflow = [
+  "크롬 브라우저로 대상 언론사에 접속하고, 로그인 실패 시 1회 새로고침 후 재시도합니다.",
+  "실행일 기준 금일 날짜의 초판 또는 e-paper 페이지로 이동해 키워드별 지면 검색을 수행합니다.",
+  "관련 기사 발견 시 제목과 본문이 보이도록 기사 영역을 캡처하고 표준 파일명으로 저장합니다.",
+  "요약 메시지와 캡처 이미지를 BGF플로우 지정 대화창으로 전송하며, 전송 실패 시 1회 재시도합니다.",
+];
+
+const retryPolicy = [
+  { label: "초판 미발행", action: "5분 간격으로 최대 3회 재확인 후 실패 로그 기록" },
+  { label: "로그인 실패", action: "새로고침 후 1회 재로그인, 재실패 시 확인 불가 보고" },
+  { label: "페이지 오류", action: "재시도 후 오류 화면과 로컬 로그를 보관" },
+  { label: "전송 실패", action: "BGF플로우 업로드 1회 재시도 후 로컬 로그 생성" },
+];
+
+const messageTemplates = {
+  found: `금일 초판 보고드립니다.\n[신문사명] [키워드] 관련 기사 있습니다.\n\n기사 제목: [기사 제목]\n요약: [핵심 내용 1~2문장 요약]\n지면/페이지: [확인 가능 시 기재]`,
+  failed: `금일 초판 보고드립니다.\n[신문사명] 확인 불가: [초판 미발행 / 로그인 실패 / 페이지 오류 중 선택]`,
 };
 
-function getResult(answers) {
-  const count = {};
-  answers.forEach((a) => {
-    count[a.type] = (count[a.type] || 0) + 1;
-  });
-  const sorted = Object.entries(count).sort((a, b) => b[1] - a[1]);
-  const topType = sorted[0]?.[0] || "speed";
-  return resultMap[topType];
+const fileNameRule = "YYYYMMDD_신문사명_키워드_기사제목.png";
+
+function Section({ title, description, children }) {
+  return (
+    <section className="card">
+      <div className="section-heading">
+        <p className="eyebrow">Monitoring Agent</p>
+        <h2>{title}</h2>
+      </div>
+      {description ? <p className="section-description">{description}</p> : null}
+      {children}
+    </section>
+  );
 }
 
 export default function App() {
-  const [started, setStarted] = useState(false);
-  const [step, setStep] = useState(0);
-  const [answers, setAnswers] = useState([]);
-
-  const finished = answers.length === questions.length;
-  const result = finished ? getResult(answers) : null;
-
-  const handleAnswer = (answer) => {
-    const nextAnswers = [...answers, answer];
-    setAnswers(nextAnswers);
-    setStep(step + 1);
-  };
-
-  const handleRestart = () => {
-    setStarted(false);
-    setStep(0);
-    setAnswers([]);
-  };
-
   return (
-    <div
-      style={{
-        maxWidth: 560,
-        margin: "0 auto",
-        padding: 24,
-        fontFamily: "NanumBarunGothic, system-ui, sans-serif",
-        lineHeight: 1.6,
-      }}
-    >
-      <h1 style={{ textAlign: "center", fontSize: 32, marginBottom: 8 }}>
-        오늘의 운세픽 (CU픽 추천)
-      </h1>
-      <p style={{ textAlign: "center", color: "#666", marginBottom: 24 }}>
-        오늘의 기분은 어떠신가요?
-      </p>
-
-      {!started ? (
-        <button
-          onClick={() => setStarted(true)}
-          style={{
-            width: "100%",
-            height: 48,
-            borderRadius: 12,
-            border: "none",
-            background: "#111",
-            color: "#fff",
-            fontSize: 16,
-            cursor: "pointer",
-          }}
-        >
-          시작하기
-        </button>
-      ) : finished ? (
-        <div
-          style={{
-            border: "1px solid #eee",
-            borderRadius: 20,
-            padding: 20,
-            boxShadow: "0 8px 24px rgba(0,0,0,0.08)",
-          }}
-        >
-          <h2 style={{ fontSize: 22, marginBottom: 12 }}>{result.title}</h2>
-
-          <div style={{ marginBottom: 20 }}>
-            <h3 style={{ marginBottom: 8 }}>오늘의 추천 상품</h3>
-            {result.products.map((p) => (
-              <div
-                key={p}
-                style={{
-                  background: "#f5f5f5",
-                  borderRadius: 12,
-                  padding: 12,
-                  marginBottom: 8,
-                }}
-              >
-                {p}
-              </div>
-            ))}
-          </div>
-
-          <div
-            style={{
-              background: "#f8f8ff",
-              borderRadius: 16,
-              padding: 16,
-              marginBottom: 16,
-            }}
-          >
-            <h3 style={{ marginBottom: 8 }}>오늘의 운세</h3>
-            <p style={{ whiteSpace: "pre-line", margin: 0 }}>{result.fortune}</p>
-          </div>
-
-          <div
-            style={{
-              border: "1px solid #eee",
-              borderRadius: 16,
-              padding: 16,
-              marginBottom: 16,
-            }}
-          >
-            <h3 style={{ marginBottom: 8 }}>오늘의 행동 가이드</h3>
-            <p style={{ margin: 0 }}>{result.action}</p>
-          </div>
-
-          <a
-            href={CU_PICK_URL}
-            target="_blank"
-            rel="noreferrer"
-            style={{
-              display: "block",
-              width: "100%",
-              textAlign: "center",
-              background: "#111",
-              color: "#fff",
-              padding: "14px 16px",
-              borderRadius: 12,
-              textDecoration: "none",
-              marginBottom: 10,
-            }}
-          >
-            더 궁금한게 있다면 오늘의 CU픽으로
-          </a>
-
-          <button
-            onClick={handleRestart}
-            style={{
-              width: "100%",
-              height: 44,
-              borderRadius: 12,
-              border: "1px solid #ddd",
-              background: "#fff",
-              cursor: "pointer",
-            }}
-          >
-            다시하기
-          </button>
+    <main className="page-shell">
+      <header className="hero">
+        <div>
+          <p className="eyebrow">BGF Retail Press Monitoring</p>
+          <h1>언론 지면 모니터링 자동화 에이전트</h1>
+          <p className="hero-copy">
+            주요 일간지의 금일 초판 지면을 정해진 시간에 확인하고, BGF리테일 관련
+            키워드 기사가 발견되면 캡처·요약·전송까지 이어지는 운영 흐름을 관리합니다.
+          </p>
         </div>
-      ) : (
-        <div
-          style={{
-            border: "1px solid #eee",
-            borderRadius: 20,
-            padding: 20,
-            boxShadow: "0 8px 24px rgba(0,0,0,0.08)",
-          }}
-        >
-          <div
-            style={{
-              height: 8,
-              background: "#eee",
-              borderRadius: 999,
-              overflow: "hidden",
-              marginBottom: 20,
-            }}
-          >
-            <div
-              style={{
-                width: `${(step / questions.length) * 100}%`,
-                height: "100%",
-                background: "#111",
-              }}
-            />
-          </div>
+        <div className="status-panel">
+          <span className="status-dot" />
+          <strong>운영 기준</strong>
+          <p>금일 날짜 초판 기준 · 5분 간격 최대 3회 재시도</p>
+        </div>
+      </header>
 
-          <h2 style={{ fontSize: 22, marginBottom: 16 }}>
-            {questions[step].question}
-          </h2>
-
-          {questions[step].answers.map((a) => (
-            <button
-              key={a.text}
-              onClick={() => handleAnswer(a)}
-              style={{
-                width: "100%",
-                textAlign: "left",
-                padding: 16,
-                borderRadius: 14,
-                border: "1px solid #ddd",
-                background: "#fff",
-                marginBottom: 10,
-                cursor: "pointer",
-                fontSize: 15,
-              }}
-            >
-              {a.text}
-            </button>
+      <Section
+        title="실행 스케줄"
+        description="계정 정보는 코드나 정적 화면에 저장하지 않고 보안 저장소에서만 주입하는 것을 전제로 합니다."
+      >
+        <div className="schedule-grid">
+          {schedule.map((item) => (
+            <article className="schedule-card" key={`${item.publisher}-${item.time}`}>
+              <span className="time">{item.time}</span>
+              <h3>{item.publisher}</h3>
+              <p>{item.edition}</p>
+              <small>{item.credentialPolicy}</small>
+            </article>
           ))}
         </div>
-      )}
-    </div>
+      </Section>
+
+      <Section title="모니터링 키워드" description="광고와 단순 데이터 표는 리포트 대상에서 제외합니다.">
+        <div className="keyword-list">
+          {keywords.map((keyword) => (
+            <span className="keyword-chip" key={keyword}>
+              {keyword}
+            </span>
+          ))}
+        </div>
+      </Section>
+
+      <Section title="작업 프로세스">
+        <ol className="workflow-list">
+          {workflow.map((step) => (
+            <li key={step}>{step}</li>
+          ))}
+        </ol>
+        <div className="file-rule">
+          <strong>캡처 파일명 규칙</strong>
+          <code>{fileNameRule}</code>
+        </div>
+      </Section>
+
+      <Section title="예외 처리 및 재시도 정책">
+        <div className="exception-grid">
+          {retryPolicy.map((policy) => (
+            <article className="exception-card" key={policy.label}>
+              <h3>{policy.label}</h3>
+              <p>{policy.action}</p>
+            </article>
+          ))}
+        </div>
+      </Section>
+
+      <Section title="보고 메시지 템플릿">
+        <div className="template-grid">
+          <article>
+            <h3>기사 발견 시</h3>
+            <pre>{messageTemplates.found}</pre>
+          </article>
+          <article>
+            <h3>미발행/실패 시</h3>
+            <pre>{messageTemplates.failed}</pre>
+          </article>
+        </div>
+      </Section>
+    </main>
   );
 }
